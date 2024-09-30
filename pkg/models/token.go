@@ -9,7 +9,7 @@ type Token struct {
 	ID         int
 	UserID     string
 	Token      string
-	LastUsedAt time.Time
+	LastUsedAt *time.Time
 	ExpiresAt  time.Time
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
@@ -33,8 +33,8 @@ func (m *Model) InsertIntoTokens(ctx context.Context, request CreateTokenRequest
 
 func (m *Model) FindToken(ctx context.Context, token string) (Token, error) {
 	var cToken Token
-	row := m.Conn.QueryRow(ctx, "select id, expires_at, last_used_at, updated_at FROM personal_access_tokens WHERE token = $1", token)
-	err := row.Scan(&cToken.ID, &cToken.ExpiresAt, &cToken.LastUsedAt, &cToken.UpdatedAt)
+	row := m.Conn.QueryRow(ctx, "select id, user_id, expires_at, last_used_at, updated_at FROM personal_access_tokens WHERE token = $1", token)
+	err := row.Scan(&cToken.ID, &cToken.UserID, &cToken.ExpiresAt, &cToken.LastUsedAt, &cToken.UpdatedAt)
 	if err != nil {
 		return Token{}, err
 	}

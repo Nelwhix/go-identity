@@ -55,6 +55,7 @@ func main() {
 	}
 
 	r := http.NewServeMux()
+	r.Handle("GET /me", middlewares.AuthMiddleware(model, http.HandlerFunc(handler.Me)))
 	r.HandleFunc("POST /auth/signup", handler.SignUp)
 	r.HandleFunc("POST /auth/login", handler.Login)
 

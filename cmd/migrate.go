@@ -39,7 +39,13 @@ func main() {
 	);
 	`
 
-	tableQueries := []string{createUsersTable, createTokensTable}
+	addMfaMigrations := `
+	ALTER TABLE users ADD mfa_secret VARCHAR(255) NULL,
+	ADD mfa_verified_at TIMESTAMP NULL,
+	ADD mfa_recovery_codes TEXT NULL
+	`
+
+	tableQueries := []string{createUsersTable, createTokensTable, addMfaMigrations}
 
 	for _, tableQuery := range tableQueries {
 		_, err = conn.Exec(context.Background(), tableQuery)

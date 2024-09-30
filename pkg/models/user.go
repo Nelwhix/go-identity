@@ -26,6 +26,20 @@ func (m *Model) GetUserByEmail(ctx context.Context, email string) (User, error) 
 	return user, nil
 }
 
+func (m *Model) GetUserByToken(ctx context.Context, token string) (User, error) {
+	cToken, err := m.FindToken(ctx, token)
+	if err != nil {
+		return User{}, err
+	}
+
+	user, err := m.GetUserById(ctx, cToken.UserID)
+	if err != nil {
+		return User{}, err
+	}
+
+	return user, nil
+}
+
 func (m *Model) GetUserById(ctx context.Context, userID string) (User, error) {
 	var user User
 	row := m.Conn.QueryRow(ctx, "select id, firstName, lastname, email, password FROM users WHERE id = $1", userID)

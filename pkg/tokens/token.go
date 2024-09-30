@@ -47,7 +47,8 @@ func CheckTokenValidity(ctx context.Context, m models.Model, tokenString string)
 		return errors.New("expired token")
 	}
 
-	cToken.LastUsedAt = time.Now()
+	lastUsed := time.Now()
+	cToken.LastUsedAt = &lastUsed
 	cToken.UpdatedAt = time.Now()
 	err = m.UpdateToken(ctx, cToken)
 	if err != nil {

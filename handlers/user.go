@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"go-identity/pkg"
+	"go-identity/pkg/models"
 	"go-identity/pkg/requests"
 	"go-identity/pkg/responses"
 	"go-identity/pkg/tokens"
@@ -108,4 +109,23 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses.NewOKResponseWithData(w, "Login success.", response)
+}
+
+func (h *Handler) Me(w http.ResponseWriter, r *http.Request) {
+	user, ok := r.Context().Value("user").(models.User)
+	if !ok {
+		responses.NewInternalServerErrorResponse(w, "User not found")
+	}
+
+	response := responses.User{
+		ID:   user.ID,
+		Type: "user",
+		Attributes: responses.UserAttributes{
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Email:     user.Email,
+		},
+	}
+
+	responses.NewOKResponseWithData(w, "Get user.", response)
 }
