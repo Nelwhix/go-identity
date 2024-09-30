@@ -27,10 +27,26 @@ func main() {
 	);
 	`
 
-	_, err = conn.Exec(context.Background(), createUsersTable)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to execute query: %v\n", err)
-		os.Exit(1)
+	createTokensTable := `
+	CREATE TABLE IF NOT EXISTS personal_access_tokens (
+		id SERIAL PRIMARY KEY,
+		user_id CHAR(26) NOT NULL,
+		token VARCHAR(64) NOT NULL,
+		last_used_at TIMESTAMP null,
+		expires_at TIMESTAMP NOT NULL,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	);
+	`
+
+	tableQueries := []string{createUsersTable, createTokensTable}
+
+	for _, tableQuery := range tableQueries {
+		_, err = conn.Exec(context.Background(), tableQuery)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to execute query: %v\n", err)
+			os.Exit(1)
+		}
 	}
 
 	fmt.Println("Migrations ran successfully!")

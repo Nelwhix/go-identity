@@ -15,6 +15,17 @@ type User struct {
 	Password  string `json:"password"`
 }
 
+func (m *Model) GetUserByEmail(ctx context.Context, email string) (User, error) {
+	var user User
+	row := m.Conn.QueryRow(ctx, "select id, firstName, lastname, email, password FROM users WHERE email = $1", email)
+	err := row.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Password)
+	if err != nil {
+		return User{}, err
+	}
+
+	return user, nil
+}
+
 func (m *Model) GetUserById(ctx context.Context, userID string) (User, error) {
 	var user User
 	row := m.Conn.QueryRow(ctx, "select id, firstName, lastname, email, password FROM users WHERE id = $1", userID)
@@ -26,7 +37,7 @@ func (m *Model) GetUserById(ctx context.Context, userID string) (User, error) {
 	return user, nil
 }
 
-func (m *Model) InsertIntoUsers(ctx context.Context, request requests.SignUpRequest) (User, error) {
+func (m *Model) InsertIntoUsers(ctx context.Context, request requests.SignUp) (User, error) {
 	userID := ulid.Make().String()
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(request.Password), 12)
 	if err != nil {

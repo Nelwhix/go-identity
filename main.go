@@ -56,6 +56,7 @@ func main() {
 
 	r := http.NewServeMux()
 	r.HandleFunc("POST /auth/signup", handler.SignUp)
+	r.HandleFunc("POST /auth/login", handler.Login)
 
 	fmt.Printf("Go-identity started at http://localhost:%s\n", ServerPort)
 
