@@ -40,6 +40,10 @@ type UserAttributesWithToken struct {
 	Token     string `json:"token"`
 }
 
+type GenerateOtp struct {
+	OtpUrl string `json:"otpUrl"`
+}
+
 func NewInternalServerErrorResponse(w http.ResponseWriter, message string) {
 	w.WriteHeader(http.StatusInternalServerError)
 	response := baseResponse{
@@ -175,4 +179,21 @@ func NewCreatedResponseWithData(w http.ResponseWriter, message string, data inte
 	}
 
 	return
+}
+
+func NewRedirect(w http.ResponseWriter, message string) {
+	w.WriteHeader(http.StatusSeeOther)
+	response := baseResponse{
+		Message: message,
+	}
+
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = w.Write(jsonResponse)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

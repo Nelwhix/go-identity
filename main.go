@@ -54,10 +54,20 @@ func main() {
 		Validator: validate,
 	}
 
+	m := middlewares.AuthMiddleware{
+		Model: model,
+	}
+
 	r := http.NewServeMux()
-	r.Handle("GET /me", middlewares.AuthMiddleware(model, http.HandlerFunc(handler.Me)))
+
+	// Guest Routes
 	r.HandleFunc("POST /auth/signup", handler.SignUp)
 	r.HandleFunc("POST /auth/login", handler.Login)
+
+	// Auth routes
+	r.Handle("GET /me", m.Register(handler.Me))
+	r.Handle("GET /generate-otp", m.Register(handler.GenerateOTP))
+	r.Handle("POST /validate-otp", m.Register(handler.ValidateOTP))
 
 	fmt.Printf("Go-identity started at http://localhost:%s\n", ServerPort)
 

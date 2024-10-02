@@ -16,7 +16,11 @@ func ContentTypeMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func AuthMiddleware(model models.Model, next http.Handler) http.Handler {
+type AuthMiddleware struct {
+	Model models.Model
+}
+
+func (a *AuthMiddleware) Register(handlerFunc func(w http.ResponseWriter, r *http.Request)) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		parts := strings.Split(authHeader, " ")
@@ -25,7 +29,7 @@ func AuthMiddleware(model models.Model, next http.Handler) http.Handler {
 			return
 		}
 
-		user, err := model.GetUserByToken(r.Context(), parts[1])
+		user, err := a.Model.GetUserByToken(r.Context(), parts[1])
 		if err != nil {
 			responses.NewInternalServerErrorResponse(w, err.Error())
 			return
@@ -34,6 +38,6 @@ func AuthMiddleware(model models.Model, next http.Handler) http.Handler {
 		nContext := context.WithValue(r.Context(), "user", user)
 		r = r.WithContext(nContext)
 
-		next.ServeHTTP(w, r)
+		http.HandlerFunc(handlerFunc).ServeHTTP(w, r)
 	})
 }

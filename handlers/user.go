@@ -91,6 +91,11 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if user.MfaVerifiedAt != nil {
+		responses.NewRedirect(w, "Use the /login/mfa endpoint to complete Auth")
+		return
+	}
+
 	token, err := tokens.CreateToken(h.Model, user.ID)
 	if err != nil {
 		responses.NewInternalServerErrorResponse(w, err.Error())
@@ -115,6 +120,7 @@ func (h *Handler) Me(w http.ResponseWriter, r *http.Request) {
 	user, ok := r.Context().Value("user").(models.User)
 	if !ok {
 		responses.NewInternalServerErrorResponse(w, "User not found")
+		return
 	}
 
 	response := responses.User{
